@@ -1,5 +1,4 @@
-const int MAX_VAL = 2147483646;
-const int N_ITEMS = 10000;
+#include "Constants.h"
 
 void countSort(const int *array, int *output, int *count) {
     // Relatively quick loops

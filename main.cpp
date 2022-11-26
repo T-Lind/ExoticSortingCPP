@@ -27,11 +27,26 @@ void assignArrays(){
     }
 }
 
-void* mergeCount(void* arg) {
+void* mergeCount(void* arg){
     int thread_part = workingThread++;
 
-    int low = thread_part * (N_ITEMS / 4); // thread part is 0, 1, 2, 3
-    int high = (thread_part + 1) * (N_ITEMS / 4) - 1;
+    int low = thread_part * (N_ITEMS / N_THREADS); // thread part is 0, 1, 2, 3
+    int high = (thread_part + 1) * (N_ITEMS / N_THREADS) - 1;
+
+
+    for (int i = low; i <= high; i++)
+        count[arr[i]]++;
+    for (int i = low; i <= high; i++)
+        count[i] += count[i - 1];
+
+    return nullptr;
+}
+
+void* mergeAssign(void* arg) {
+    int thread_part = workingThread++;
+
+    int low = thread_part * (N_ITEMS / N_THREADS); // thread part is 0, 1, 2, 3
+    int high = (thread_part + 1) * (N_ITEMS / N_THREADS) - 1;
 
 
     for (int i = high; i >= low; i--) {
@@ -39,32 +54,38 @@ void* mergeCount(void* arg) {
         count[arr[i]]--;
     }
 
+    pthread_exit(nullptr);
+
     return nullptr;
 }
 
 void runMultiThread(){
     assignArrays();
 
-    pthread_t threads[4];
-
-    auto before = high_resolution_clock::now();
 
     for (int i = 1; i <= N_ITEMS; i++)
         count[arr[i]]++;
     for (int i = 1; i <= MAX_VAL; i++)
         count[i] += count[i - 1];
 
+    cout << "Finished prelim operations\n";
+
+    auto before = high_resolution_clock::now();
+
+    pthread_t threads[N_THREADS];
     for (unsigned long long & thread : threads)
-        pthread_create(&thread, nullptr, mergeCount, (void *) nullptr);
+        pthread_create(&thread, nullptr, mergeAssign, (void *) nullptr);
 
-    for (unsigned long long thread: threads)
-        pthread_join(thread, nullptr);
+//    for (unsigned long long thread: threads)
+//        pthread_join(thread, nullptr);
 
-//    countSort(arr, output, count);
     auto after = high_resolution_clock::now();
 
     auto duration = duration_cast<milliseconds>(after - before);
-    cout << "Sorting took " << duration.count() << " milliseconds." << endl;
+    cout << "Final aspect of sorting took " << duration.count() << " milliseconds." << endl;
+
+    for(int i=100;i<150;i++)
+        cout << arr[i] << " ";
 
     delete[] arr;
     delete[] output;

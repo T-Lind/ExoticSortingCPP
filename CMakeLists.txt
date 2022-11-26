@@ -3,4 +3,4 @@ project(ExoticSorting)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(ExoticSorting main.cpp ParallelCountingSort.h)
+add_executable(ExoticSorting main.cpp ParallelCountingSort.h Constants.h)
